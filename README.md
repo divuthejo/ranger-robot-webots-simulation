@@ -35,7 +35,8 @@ Models are not in the repo (`models/` is git-ignored). Put them in `~/ranger_ws/
 - **Vosk speech model:** `vosk-model-small-en-us-0.15` from https://alphacephei.com/vosk/models
 - **Piper voice:** `en_US-lessac-medium.onnx` (+ `.json`) from https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_US/lessac/medium
 - **Animal + person detectors (trained for this project):** download `animals_openvino_model.zip` and `person_openvino_model.zip` from the [Releases](../../releases) page and unzip them into `models/`
-  - To retrain instead: `ros2 run ranger_bot vision_dataset collect` and `label`, fine-tune YOLO-World, export to OpenVINO as `models/animals_openvino_model`; r_bot vision_dataset export-person`
+  - To retrain instead: `ros2 run ranger_bot vision_dataset collect` and `label`, fine-tune YOLO-World, export to OpenVINO as `models/animals_openvino_model`; person model: `ros2 run ranger_bot vision_dataset export-person`
+
 - Without the detectors, run with `vision:=false`; everything else still works.
 
 ## Run
