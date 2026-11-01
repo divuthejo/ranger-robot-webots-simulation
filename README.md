@@ -1,5 +1,7 @@
 # Ranger Robot - animal patrol in Webots
 
+![The Webots animal reserve: the rover near its yellow charging dock, animals around the lake, and an intruder in a red shirt](docs/reserve.jpg)
+
 A TurtleBot3 Burger patrols a simulated animal reserve with deer, horses, cows, sheep,
 foxes, rabbits, dogs and cats (ROS 2 Jazzy + Webots R2025a).
 It maps the reserve, drives itself with Nav2, spots animals with a camera, follows them,

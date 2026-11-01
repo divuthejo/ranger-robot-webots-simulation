@@ -82,25 +82,52 @@ def implied_height(box, cam_height=CAM_HEIGHT, cy=CAM_CY):
     return (y2 - y1) * cam_height / (y2 - cy)
 
 
-def plausible_person(box, min_h=1.2, max_h=2.4, max_aspect=0.45):
+TOP_CUT_PX = 10              # a box starting this close to the image top has its head cut off
+
+
+def plausible_person(box, min_h=1.2, max_h=2.4, max_aspect=0.45, min_aspect=0.15,
+                     stocky_aspect=0.37, stocky_min_h=1.38):
     """Zero-shot 'person' boxes also land on animals (a cat at 8 m scored 0.53, a distant deer
-    0.60, a horse 0.73). A standing person is 1.2-2.4 m tall - the box's implied height - AND
-    narrow: width <= 0.45 x height (intruder boxes measured 0.24-0.33; animals 0.6-1.2, a cow
-    from behind 0.64). Height alone passes horses and cows (~1.4 m)."""
+    0.60, a horse 0.73). Returns 'full' (a whole standing person), 'cut' (person-shaped but the
+    top is cut off by the image edge, so its height can't be checked) or None.
+
+    - A standing person is 1.2-2.4 m tall - the box's implied height - AND narrow:
+      width <= 0.45 x height (intruder boxes measured 0.24-0.36; animals 0.6-1.2, a cow from
+      behind 0.64). Height alone passes horses and cows (~1.4 m).
+    - Animals seen end-on (a horse from behind, a deer facing the camera) gave boxes of aspect
+      0.39-0.44 and only 1.21-1.33 m (2026-11-01: a horse's rear raised the intruder alarm at
+      0.85). Real intruder boxes there were narrower or taller (1.40-1.71 m), so a box that is
+      both fairly wide (> 0.37) and short (< 1.38 m) is rejected.
+    - Slivers at the image side (aspect < 0.15) are animal legs/edges, not people.
+    """
     x1, y1, x2, y2 = box
-    if (x2 - x1) > max_aspect * (y2 - y1):
-        return False
+    w, h_px = x2 - x1, y2 - y1
+    if h_px <= 0 or not min_aspect * h_px <= w <= max_aspect * h_px:
+        return None
+    if y1 < TOP_CUT_PX:
+        return 'cut'
     h = implied_height(box)
-    return h is not None and min_h <= h <= max_h
+    if h is None or not min_h <= h <= max_h:
+        return None
+    if w > stocky_aspect * h_px and h < stocky_min_h:
+        return None
+    return 'full'
 
 
-def resolve_people(animal_dets, person_dets, max_iou=0.3):
+def resolve_people(animal_dets, person_dets, recent_full=False, max_iou=0.3):
     """Keep plausible person boxes; drop animal boxes that sit on one. The animal model never
     saw a person in training and calls the intruder a 'cow' (0.7-0.84) - with "animal wins"
-    the real intruder was never reported. dets: [(box, name, score)]."""
-    people = [p for p in person_dets if plausible_person(p[0])]
+    the real intruder was never reported. dets: [(box, name, score)].
+
+    Boxes with the top cut off (the intruder within ~2.5 m, e.g. while being followed) can't be
+    height-checked, and horse legs look the same, so they only count while a person was
+    accepted recently (recent_full; the detector chains this from a whole-person sighting).
+    Returns (animals, people, saw_full)."""
+    kinds = [(p, plausible_person(p[0])) for p in person_dets]
+    saw_full = any(k == 'full' for _, k in kinds)
+    people = [p for p, k in kinds if k == 'full' or (k == 'cut' and (recent_full or saw_full))]
     animals = [a for a in animal_dets if all(iou(a[0], p[0]) <= max_iou for p in people)]
-    return animals, people
+    return animals, people, saw_full
 
 
 def bearing(u, width):
@@ -130,6 +157,9 @@ class AnimalDetector(Node):
             'person_model', '~/ranger_ws/models/person_openvino_model').value)
         self.person_every = int(self.declare_parameter('person_every', 2).value)
         self.person_conf = self.declare_parameter('person_confidence', 0.2).value
+        # head-cut person boxes count only within this many s of the last accepted person, and
+        # that chain must start with a whole (height-checked) person
+        self.cut_person_window = self.declare_parameter('cut_person_window', 15.0).value
         self.person_model = YOLO(person, task='detect') if os.path.isdir(person) else None
         self.frames = 0
         os.makedirs(self.sightings_dir, exist_ok=True)
@@ -170,12 +200,17 @@ class AnimalDetector(Node):
         if self.person_model is not None and self.frames % self.person_every == 0:
             pr = self.person_model.predict(img, conf=self.person_conf, verbose=False)[0]
             people = [(b.xyxy[0].tolist(), 'person', float(b.conf)) for b in pr.boxes]
-            boxes, people = resolve_people(boxes, people)
+            stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
+            recent = stamp - getattr(self, 'last_person_t', -1e9) <= self.cut_person_window
+            boxes, people, _ = resolve_people(boxes, people, recent_full=recent)
+            if people:      # a chain of sightings that started with a whole person
+                self.last_person_t = stamp
             self.last_people = people
         elif getattr(self, 'last_people', None):
             # frames without the person model (half the CPU): last frame's people still
             # suppress the animal model's 'cow' box on the intruder, but are not re-reported
-            boxes, _ = resolve_people(boxes, self.last_people)
+            boxes = [a for a in boxes
+                     if all(iou(a[0], p[0]) <= 0.3 for p in self.last_people)]
         out = Detection2DArray(header=msg.header)
         found = {}                                      # name -> (score, box), best per name
         for (x1, y1, x2, y2), name, score in boxes + people:
