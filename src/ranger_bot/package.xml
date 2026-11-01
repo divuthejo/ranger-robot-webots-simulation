@@ -3,7 +3,7 @@
 <package format="3">
   <name>ranger_bot</name>
   <version>0.1.0</version>
-  <description>Wildlife ranger TurtleBot in Webots: joystick, shared control and LLM mission modes.</description>
+  <description>Wildlife ranger TurtleBot in Webots: joystick, shared control and autonomous patrol/task modes.</description>
   <maintainer email="djdivyajoshi774@gmail.com">divuthejo</maintainer>
   <license>Apache-2.0</license>
 

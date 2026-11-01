@@ -6,7 +6,7 @@
 The route (parameter `route`, map frame) goes through Nav2's FollowWaypoints action.
 The default loop uses the six goals that passed the Nav2 test on 2026-10-31.
 Each lap restarts from the waypoint nearest the robot, so re-entering AUTO does not send
-it back across the reserve to the first point. Other nodes (the coming Claude mission)
+it back across the reserve to the first point. Other nodes (e.g. a mission planner)
 take over by publishing 'pause' on /ranger/patrol, and hand back with 'resume'; a pause
 also ends when the robot leaves AUTO.
 """

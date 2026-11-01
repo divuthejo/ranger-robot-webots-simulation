@@ -3,7 +3,7 @@
     /ranger/task (std_msgs/String, plain words)  ->  Nav2 goal  ->  /ranger/task_status
 
 Send one from a terminal:   ros2 run ranger_bot task "go towards the deer"
-Voice control and the Claude mission will publish the same plain text.
+Any other node (e.g. voice control) can publish the same plain text.
 
 Targets are named places plus the animals in the world file (positions read from the
 .wbt, so moving an animal in Webots only needs a restart). You cannot drive *into* a deer
