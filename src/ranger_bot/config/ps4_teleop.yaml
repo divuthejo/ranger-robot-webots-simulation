@@ -1,0 +1,38 @@
+# DualShock 4 (PS4) mapping as joy_node reports it on this laptop (USB, Linux hid-sony
+# layout: 8 axes, 13 buttons). Check yours with:  ros2 topic echo /joy
+#   axes:    0 left-X   1 left-Y   2 L2 (1.0 released)   3 right-X   4 right-Y
+#            5 R2 (1.0 released)   6 D-pad X   7 D-pad Y
+#   buttons: 0 Cross  1 Circle  2 Triangle  3 Square  4 L1  5 R1  6 L2  7 R2
+#            8 Share  9 Options  10 PS  11 L3  12 R3
+#
+# Driving: hold L1 (dead-man) + left stick up/down to drive, right stick left/right to turn.
+#          Hold R1 instead of L1 for turbo.
+
+joy_node:
+  ros__parameters:
+    device_id: 0
+    deadzone: 0.08
+    autorepeat_rate: 20.0
+    coalesce_interval_ms: 1
+
+teleop_twist_joy_node:
+  ros__parameters:
+    publish_stamped_twist: true   # Jazzy diff_drive_controller expects TwistStamped
+    frame: base_link
+    require_enable_button: true
+    enable_button: 4          # L1
+    enable_turbo_button: 5    # R1
+
+    axis_linear:
+      x: 1                    # left stick up/down
+    scale_linear:
+      x: 0.15
+    scale_linear_turbo:
+      x: 0.22
+
+    axis_angular:
+      yaw: 3                  # right stick left/right
+    scale_angular:
+      yaw: 1.2
+    scale_angular_turbo:
+      yaw: 2.0

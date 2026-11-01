@@ -1,0 +1,47 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50
+
+    diffdrive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+diffdrive_controller:
+  ros__parameters:
+    left_wheel_names: ["left wheel motor"]
+    right_wheel_names: ["right wheel motor"]
+
+    wheel_separation: 0.16
+    wheel_radius: 0.033
+    # Same correction as webots_ros2_turtlebot: the nominal separation gives drifting odometry.
+    wheel_separation_multiplier: 1.112
+
+    base_frame_id: "base_link"
+    odom_frame_id: "odom"
+    # The EKF (config/ekf.yaml) fuses this with the IMU and publishes odom -> base_link.
+    enable_odom_tf: false
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.03]
+    twist_covariance_diagonal: [0.002, 0.002, 1000000.0, 1000000.0, 1000000.0, 0.02]
+
+    # Commands older than this are dropped. 0.5 s (default) is too tight when the laptop is
+    # loaded: sim time lags and every Nav2 command was "older than the current time by 0.8 s",
+    # so the robot never moved. mode_manager still sends a stop when its source goes quiet.
+    cmd_vel_timeout: 1.5
+
+    # TurtleBot3 Burger hardware limits
+    linear:
+      x:
+        max_velocity: 0.22
+        min_velocity: -0.22
+    angular:
+      z:
+        max_velocity: 2.84
+        min_velocity: -2.84
+
+joint_state_broadcaster:
+  ros__parameters:
+    extra_joints:
+      - LDS-01_secondary_motor
+      - LDS-01_main_motor

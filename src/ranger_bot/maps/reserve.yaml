@@ -1,0 +1,7 @@
+image: reserve.pgm
+mode: trinary
+resolution: 0.050
+origin: [-15.041, -14.991, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

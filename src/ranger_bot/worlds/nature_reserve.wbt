@@ -1,0 +1,285 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Grass.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/devices/robotis/protos/RobotisLds01.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/trees/protos/Pine.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/trees/protos/Oak.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/rocks/protos/Rock.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Deer.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Fox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Rabbit.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Horse.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Cow.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Sheep.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Dog.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/animals/protos/Cat.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/humans/pedestrian/protos/Pedestrian.proto"
+
+# Nature reserve, 30 x 30 m, centred on the origin (robot spawn).
+# Zones:  lake (NE, centre 8 7)  |  meadow (N, y > 8)
+#         forest (W, x < -6)     |  rocky ridge (S, y < -7)
+
+WorldInfo {
+  info [
+    "Wildlife ranger robot - nature reserve patrol world"
+  ]
+  title "Nature Reserve"
+  basicTimeStep 32
+}
+Viewpoint {
+  orientation -0.33 0.33 0.88 1.69
+  position 0.5 -9 8
+  follow "TurtleBot3Burger"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  name "reserve fence"
+  floorSize 30 30
+  floorTileSize 3 3
+  floorAppearance Grass {
+  }
+  wallThickness 0.1
+  wallHeight 0.6
+  wallAppearance PBRAppearance {
+    baseColor 0.45 0.3 0.15
+    roughness 1
+    metalness 0
+  }
+}
+
+# ---------------------------------------------------------------- lake
+Solid {
+  translation 8 7 0.1
+  name "lake"
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.15 0.4 0.65
+        roughness 0.05
+        metalness 0
+        transparency 0.15
+      }
+      geometry DEF LAKE_SHAPE Cylinder {
+        height 0.2
+        radius 3.5
+      }
+    }
+  ]
+  boundingObject USE LAKE_SHAPE
+}
+Rock {
+  translation 4.3 8.6 0
+  name "lake rock 1"
+  scale 2
+}
+Rock {
+  translation 11.6 5.2 0
+  name "lake rock 2"
+  type "flat"
+  scale 2.5
+}
+Rock {
+  translation 9.5 10.8 0
+  name "lake rock 3"
+  scale 1.5
+}
+
+# ---------------------------------------------------------------- forest (west)
+Pine {
+  translation -8 -3 0
+  name "pine 1"
+}
+Pine {
+  translation -10.5 0.5 0
+  name "pine 2"
+}
+Pine {
+  translation -12.5 -4.5 0
+  name "pine 3"
+}
+Pine {
+  translation -7.5 4 0
+  name "pine 4"
+}
+Pine {
+  translation -12 5.5 0
+  name "pine 5"
+}
+Pine {
+  translation -9.5 8.5 0
+  name "pine 6"
+}
+Oak {
+  translation -11 -8.5 0
+  name "oak 1"
+}
+Oak {
+  translation -6.5 -6.5 0
+  name "oak 2"
+}
+
+# ---------------------------------------------------------------- meadow (north)
+Oak {
+  translation 0.5 9 0
+  name "meadow oak"
+}
+Pine {
+  translation -4 13 0
+  name "meadow pine"
+}
+
+# ---------------------------------------------------------------- rocky ridge (south)
+Rock {
+  translation -4 -11 0
+  name "ridge rock 1"
+  scale 4
+}
+Rock {
+  translation -0.5 -12.5 0
+  name "ridge rock 2"
+  scale 3
+}
+Rock {
+  translation 3 -11 0
+  name "ridge rock 3"
+  type "flat"
+  scale 4
+}
+Rock {
+  translation 7 -12.5 0
+  name "ridge rock 4"
+  scale 3.5
+}
+Rock {
+  translation 10.5 -10 0
+  name "ridge rock 5"
+  scale 2.5
+}
+Rock {
+  translation 1 -8 0
+  name "ridge rock 6"
+  scale 2
+}
+
+# ---------------------------------------------------------------- animals
+Deer {
+  translation 4 5.5 0
+  rotation 0 0 1 0.4
+  name "deer"
+}
+Dog {
+  translation 10 2 0
+  rotation 0 0 1 2.2
+  name "dog"
+}
+Horse {
+  translation -1.5 11.5 0
+  rotation 0 0 1 -0.6
+  name "horse"
+}
+Cow {
+  translation 3 12.5 0
+  rotation 0 0 1 3.1
+  name "cow"
+}
+Sheep {
+  translation -4 9 0
+  rotation 0 0 1 1.2
+  name "sheep"
+}
+Fox {
+  translation -9 -1.5 0
+  rotation 0 0 1 -1.0
+  name "fox"
+}
+Rabbit {
+  translation -2 -9 0
+  rotation 0 0 1 0.8
+  name "rabbit"
+}
+Cat {
+  translation 5 -9.5 0
+  rotation 0 0 1 2.6
+  name "cat"
+}
+
+# ---------------------------------------------------------------- wildlife + intruder
+# controllers/wildlife/wildlife.py moves the animals (ranger_bot/wildlife_sim.py) and walks
+# the intruder in and out. The Pedestrian has no bounding object (default), so it can never
+# collide with the robot; it is parked under the ground between visits.
+Pedestrian {
+  translation 0 0 -10
+  name "intruder"
+  controller "<none>"
+  shirtColor 0.6 0.1 0.1
+}
+Robot {
+  name "wildlife"
+  supervisor TRUE
+  # started by ranger.launch.py (webots-controller): webots_ros2 runs a copy of this world
+  # from /tmp, where a project-relative controllers/ folder is not found
+  controller "<extern>"
+}
+
+# ---------------------------------------------------------------- charging dock (home)
+# Visual only (no bounding object): the robot drives onto it. Below the lidar plane.
+Solid {
+  translation 0 0 0.002
+  name "charging dock"
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.95 0.75 0.1
+        roughness 0.8
+        metalness 0
+      }
+      geometry Box {
+        size 0.6 0.6 0.004
+      }
+    }
+  ]
+}
+
+# ---------------------------------------------------------------- robot
+TurtleBot3Burger {
+  translation 0 0 0
+  rotation 0 0 1 0
+  controller "<extern>"
+  controllerArgs [
+    ""
+  ]
+  extensionSlot [
+    Solid {
+      name "imu_link"
+    }
+    GPS {
+    }
+    # The Burger proto already has an Accelerometer and Gyro (default names
+    # "accelerometer" / "gyro") that the IMU plugin uses; only add the InertialUnit.
+    InertialUnit {
+      name "inertial_unit"
+    }
+    RobotisLds01 {
+    }
+    # Front camera for the YOLO animal detector (step 4). Mounted above the
+    # LiDAR plane so it does not block the scan.
+    Pose {
+      translation 0.03 0 0.21
+      children [
+        Camera {
+          name "camera"
+          fieldOfView 1.2
+          width 640
+          height 480
+        }
+      ]
+    }
+  ]
+}

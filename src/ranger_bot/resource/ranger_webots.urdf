@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<!-- Webots <-> ROS 2 interface for the ranger TurtleBot3 Burger.
+     Based on webots_ros2_turtlebot/resource/turtlebot_webots.urdf, plus the camera. -->
+<robot name="Ranger TurtleBot3 Burger">
+    <webots>
+        <device reference="LDS-01" type="Lidar">
+            <ros>
+                <enabled>true</enabled>
+                <updateRate>5</updateRate>
+                <topicName>/scan</topicName>
+                <alwaysOn>false</alwaysOn>
+                <frameName>LDS-01</frameName>
+            </ros>
+        </device>
+
+        <device reference="camera" type="Camera">
+            <ros>
+                <enabled>true</enabled>
+                <updateRate>10</updateRate>
+                <topicName>/camera</topicName>
+                <alwaysOn>false</alwaysOn>
+                <frameName>camera</frameName>
+            </ros>
+        </device>
+
+        <!-- Ground-truth position from the simulator, for checking odometry/SLAM. -->
+        <device reference="gps" type="GPS">
+            <ros>
+                <enabled>true</enabled>
+                <updateRate>10</updateRate>
+                <topicName>/gps</topicName>
+                <alwaysOn>true</alwaysOn>
+                <frameName>gps</frameName>
+            </ros>
+        </device>
+
+        <plugin type="webots_ros2_driver::Ros2IMU">
+            <enabled>true</enabled>
+            <updateRate>20</updateRate>
+            <topicName>/imu</topicName>
+            <alwaysOn>false</alwaysOn>
+            <frameName>imu_link</frameName>
+            <inertialUnitName>inertial_unit</inertialUnitName>
+            <gyroName>gyro</gyroName>
+            <accelerometerName>accelerometer</accelerometerName>
+        </plugin>
+
+        <plugin type="webots_ros2_control::Ros2Control" />
+    </webots>
+
+    <ros2_control name="WebotsControl" type="system">
+        <hardware>
+            <plugin>webots_ros2_control::Ros2ControlSystem</plugin>
+        </hardware>
+        <joint name="right wheel motor">
+            <state_interface name="position"/>
+            <command_interface name="velocity"/>
+        </joint>
+        <joint name="left wheel motor">
+            <state_interface name="position"/>
+            <command_interface name="velocity"/>
+        </joint>
+    </ros2_control>
+</robot>

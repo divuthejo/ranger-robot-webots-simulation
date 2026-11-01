@@ -1,0 +1,44 @@
+# robot_localization EKF: wheel odometry + IMU -> /odometry/filtered and the odom -> base_link TF.
+# Wheel odometry alone drifted ~2.4 m / 10 deg over a 60 m mapping drive (wheel slip when
+# turning and brushing foliage), which pushed slam_toolbox into a wrong loop closure.
+# The IMU's heading does not drift, so the fused heading stays right and the position
+# error only grows with distance travelled.
+#
+# 2026-10-31: the EKF used to integrate the wheel *velocities* (vx, vyaw) from /odom. Under
+# load (sim + slam + rviz, or Nav2) those came out ~10% high, so EKF distances were x1.09 -
+# this stretched the reserve map by ~9% and made AMCL drift 1.4 m. The wheel *pose* in /odom
+# stays accurate (x0.997 vs ground truth, measured in both light and loaded runs), so the
+# position is now fused from it in differential mode (pose deltas between consecutive
+# messages, i.e. independent of the reported velocity).
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 30.0
+    two_d_mode: true
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # Wheels: x/y pose deltas (differential). Heading comes from the IMU only.
+    odom0: /odom
+    odom0_config: [true,  true,  false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    odom0_differential: true
+    # 2026-11-01: a late-started diffdrive_controller published one bogus odometry jump and the
+    # EKF (and so AMCL) ended 285 m off. Reject measurements this many std devs away.
+    odom0_pose_rejection_threshold: 10.0
+    odom0_twist_rejection_threshold: 10.0
+
+    # IMU: absolute yaw (Webots InertialUnit) and yaw rate (gyro).
+    imu0: /imu
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]
+    imu0_remove_gravitational_acceleration: true
