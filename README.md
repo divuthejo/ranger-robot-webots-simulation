@@ -1,4 +1,4 @@
-# Ranger Robot – animal patrol in Webots
+# Ranger Robot - animal patrol in Webots
 
 A TurtleBot3 Burger patrols a simulated animal reserve with deer, horses, cows, sheep,
 foxes, rabbits, dogs and cats (ROS 2 Jazzy + Webots R2025a).
